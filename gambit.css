@@ -1,0 +1,50 @@
+/* CSS declarations go here */
+@media (min-width: 980px) {
+  body {
+    padding-top: 60px;
+  }
+}
+
+.end-round {
+  display: none;
+}
+
+.results .end-round {
+  display: inline-block;
+}
+
+.center {
+  text-align: center;
+}
+
+.header {
+  line-height: 28px;
+}
+
+.card {
+  box-shadow: 2px 4px 10px #444;
+  color: #222;
+  display: inline-block;
+  width: 100px;
+  height: 60px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 2em;
+}
+
+.card span {
+  line-height: 60px;
+}
+
+.card:hover, .selected {
+  background-color: #ff9;
+  color: #222;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.shelf {
+  border: 1px solid #222;
+  padding: 10px;
+  margin: 5px;
+}

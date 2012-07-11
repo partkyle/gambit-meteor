@@ -1,0 +1,75 @@
+<head>
+  <title>Gambit</title>
+</head>
+
+<body>
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a href="/" class="brand"> Gambit </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    {{> app}}
+  </div>
+</body>
+
+<template name="app">
+  {{#if lobby_mode}}
+    {{> lobby}}
+  {{else}}
+    {{> room}}
+  {{/if}}
+</template>
+
+<template name="lobby">
+  <a class="new-room btn btn-primary">
+    <i class="icon-plus icon-white" />
+    New Room
+  </a>
+  <ul class="unstyled">
+    {{#each rooms}}
+      <li class="shelf">{{room_name}}</li>
+    {{/each}}
+  </ul>
+</template>
+
+<template name="room">
+  <div class="row header">
+    <div class="span4">
+      <input class="span4 room-name" value="{{room_name}}" />
+    </div>
+    <div class="span4 center">
+      <a class="reset" href="#">
+        <i class="icon-refresh" />
+        Next Round
+      </a>
+    </div>
+    <div class="span4">
+      <input class="span4 player-name" value="{{player_name}}" placeholder="Player Name..." />
+    </div>
+  </div>
+  <ul class="thumbnails cards">
+    {{#each cards}}
+      <li class="span2">
+        <a class="card {{selected}}">
+          <span>{{value}}</span>
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+
+  <ul class="unstyled players">
+    {{#each players}}
+      <li class="clearfix shelf">
+        <span class="pull-left">{{name}}</span>
+        {{#if end_round}}
+          <span class="pull-right {{badge_class}}">{{score_display}}</span>
+        {{/if}}
+      </li>
+    {{/each}}
+  </ul>
+</template>
+
