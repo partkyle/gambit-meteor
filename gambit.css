@@ -19,17 +19,18 @@
 
 .header {
   line-height: 28px;
+  padding-bottom: 10px;
 }
 
 .card {
   box-shadow: 2px 4px 10px #444;
   color: #222;
   display: inline-block;
-  width: 100px;
+  font-size: 2em;
   height: 60px;
   text-align: center;
   text-decoration: none;
-  font-size: 2em;
+  width: 100px;
 }
 
 .card span {
@@ -45,6 +46,6 @@
 
 .shelf {
   border: 1px solid #222;
-  padding: 10px;
   margin: 5px;
+  padding: 10px;
 }
