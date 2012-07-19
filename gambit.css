@@ -5,14 +5,6 @@
   }
 }
 
-.end-round {
-  display: none;
-}
-
-.results .end-round {
-  display: inline-block;
-}
-
 .center {
   text-align: center;
 }
@@ -46,6 +38,6 @@
 
 .shelf {
   border: 1px solid #222;
-  margin: 5px;
   padding: 10px;
+  margin: 5px;
 }
