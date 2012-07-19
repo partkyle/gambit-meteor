@@ -2,10 +2,13 @@ Players = new Meteor.Collection('players');
 Rooms = new Meteor.Collection('rooms');
 
 if (Meteor.is_client) {
-
-  var player_id = Players.insert({});
-  Session.set('player_id', player_id);
-  Players.update(player_id, {$set: {name: player_id}});
+  /*
+   * Helper Functions
+   */
+  var setPlayerId = function(player_id) {
+    Session.set('player_id', player_id);
+    $.cookie('player_id', player_id);
+  }
 
   var change_room = function(room) {
     Session.set('room', room);
@@ -15,6 +18,36 @@ if (Meteor.is_client) {
   var change_card = function(card) {
     Session.set('card', card);
     Players.update(Session.get('player_id'), {$set: {score: card}});
+  }
+
+  /*
+   * Initialize session
+   */
+  var player_id = $.cookie('player_id');
+  if (!player_id) {
+    player_id = Players.insert({});
+    Players.update(player_id, {$set: {name: ''}});
+  }
+  setPlayerId(player_id);
+
+
+  /*
+   * Template setup
+   */
+  Template.navbar.player_name = function() {
+    var player = Players.findOne(Session.get('player_id'));
+    if (player) {
+      return player.name;
+    }
+  }
+
+  Template.navbar.events = {
+    'change .player-name': function(e) {
+      var value = String(e.target.value || "");
+      if (value.length) {
+        Players.update(Session.get('player_id'), {$set: {name: value}});
+      }
+    }
   }
 
   Template.app.lobby_mode = function() {
@@ -30,8 +63,8 @@ if (Meteor.is_client) {
       return this._id
 
     return this.name;
-  }
 
+  }
   Template.lobby.events = {
     'click .new-room': function(e) {
       var room_id = Rooms.insert({name: ''});
@@ -57,8 +90,8 @@ if (Meteor.is_client) {
     return Template.lobby.room_name.apply(current_room);
   }
 
-  Template.room.player_name = function() {
-    return Players.findOne(Session.get('player_id')).name;
+  Template.room.player_display = function() {
+    return this.name ? this.name : this._id
   }
 
   Template.room.players = function() {
@@ -116,12 +149,6 @@ if (Meteor.is_client) {
       var value = String(e.target.value || "");
       if (value.length) {
         Rooms.update(Session.get('room'), {$set: {name: value}});
-      }
-    },
-    'change .player-name': function(e) {
-      var value = String(e.target.value || "");
-      if (value.length) {
-        Players.update(Session.get('player_id'), {$set: {name: value}});
       }
     }
   };

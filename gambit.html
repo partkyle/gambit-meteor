@@ -3,18 +3,25 @@
 </head>
 
 <body>
-  <div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <a href="/" class="brand"> Gambit </a>
-      </div>
-    </div>
-  </div>
-
+  {{> navbar}}
   <div class="container">
     {{> app}}
   </div>
 </body>
+
+<template name="navbar">
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a href="/" class="brand"> Gambit </a>
+        <form class="navbar-form pull-right" onsubmit="return false">
+          <input class="span4 player-name" type="text"
+                 value="{{player_name}}" placeholder="Player Name..."/>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
 
 <template name="app">
   {{#if lobby_mode}}
@@ -47,10 +54,8 @@
         Next Round
       </a>
     </div>
-    <div class="span4">
-      <input class="span4 player-name" value="{{player_name}}" placeholder="Player Name..." />
-    </div>
   </div>
+
   <ul class="thumbnails cards">
     {{#each cards}}
       <li class="span2">
@@ -64,7 +69,7 @@
   <ul class="unstyled players">
     {{#each players}}
       <li class="clearfix shelf">
-        <span class="pull-left">{{name}}</span>
+        <span class="pull-left">{{player_display}}</span>
         {{#if end_round}}
           <span class="pull-right {{badge_class}}">{{score_display}}</span>
         {{/if}}
