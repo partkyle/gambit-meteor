@@ -38,7 +38,14 @@
   </a>
   <ul class="unstyled">
     {{#each rooms}}
-      <li class="shelf">{{room_name}}</li>
+      <li class="clearfix shelf">
+        <span class="pull-left">
+          {{room_name}}
+        </span>
+        <span class="span2">
+          <i class="icon-trash"></i>
+        </span>
+      </li>
     {{/each}}
   </ul>
 </template>
@@ -70,6 +77,9 @@
     {{#each players}}
       <li class="clearfix shelf">
         <span class="pull-left">{{player_display}}</span>
+        <span class="span2">
+          <i class="icon-trash"></i>
+        </span>
         {{#if end_round}}
           <span class="pull-right {{badge_class}}">{{score_display}}</span>
         {{/if}}

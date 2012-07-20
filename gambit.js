@@ -5,6 +5,15 @@ if (Meteor.is_client) {
   /*
    * Helper Functions
    */
+  var findSelf = function() {
+    var player = Players.findOne(Session.get('player_id'));
+    if (!player) {
+      setPlayerId(null);
+      location.reload();
+    }
+    return player;
+  }
+
   var setPlayerId = function(player_id) {
     Session.set('player_id', player_id);
     $.cookie('player_id', player_id);
@@ -25,8 +34,7 @@ if (Meteor.is_client) {
    */
   var player_id = $.cookie('player_id');
   if (!player_id) {
-    player_id = Players.insert({});
-    Players.update(player_id, {$set: {name: ''}});
+    player_id = Players.insert({name: null});
   }
   setPlayerId(player_id);
 
@@ -35,23 +43,26 @@ if (Meteor.is_client) {
    * Template setup
    */
   Template.navbar.player_name = function() {
-    var player = Players.findOne(Session.get('player_id'));
+    var player = findSelf();
     if (player) {
       return player.name;
     }
   }
 
   Template.navbar.events = {
+    'click .brand': function(e) {
+      Players.update(Session.get('player_id'), {$set: {room: null}});
+      return false;
+    },
     'change .player-name': function(e) {
       var value = String(e.target.value || "");
-      if (value.length) {
-        Players.update(Session.get('player_id'), {$set: {name: value}});
-      }
+      Players.update(Session.get('player_id'), {$set: {name: value}});
     }
   }
 
   Template.app.lobby_mode = function() {
-    return !Session.get('room');
+    var player = findSelf();
+    return !player || !player.room;
   }
 
   Template.lobby.rooms = function() {
@@ -59,12 +70,13 @@ if (Meteor.is_client) {
   }
 
   Template.lobby.room_name = function() {
-    if (!this.name.length)
-      return this._id
+    if (!this.name.length) {
+      return this._id;
+    }
 
     return this.name;
-
   }
+
   Template.lobby.events = {
     'click .new-room': function(e) {
       var room_id = Rooms.insert({name: ''});
@@ -72,6 +84,12 @@ if (Meteor.is_client) {
     },
     'click .shelf': function(e) {
       change_room(this._id);
+    },
+    'click .shelf .icon-trash': function(e) {
+      Players.update({room: this._id}, {$set: {room: null, score: null}});
+      Rooms.remove(this._id);
+
+      return false;
     }
   };
 
@@ -91,7 +109,7 @@ if (Meteor.is_client) {
   }
 
   Template.room.player_display = function() {
-    return this.name ? this.name : this._id
+    return this.name ? this.name : this._id;
   }
 
   Template.room.players = function() {
@@ -150,6 +168,13 @@ if (Meteor.is_client) {
       if (value.length) {
         Rooms.update(Session.get('room'), {$set: {name: value}});
       }
+    },
+    'click .shelf .icon-trash': function(e) {
+      if (this._id == Session.get('player_id')) {
+        alert('Y U NO NOT DELETE SELF!?');
+      } else {
+        Players.remove(this._id);
+      }
     }
   };
 
@@ -157,6 +182,5 @@ if (Meteor.is_client) {
 
 if (Meteor.is_server) {
   Meteor.startup(function () {
-    // code to run on server at startup
   });
 }
