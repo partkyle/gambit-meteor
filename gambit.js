@@ -21,7 +21,7 @@ if (Meteor.is_client) {
 
   var change_room = function(room) {
     Session.set('room', room);
-    Players.update(Session.get('player_id'), {$set: {room: room, entered_at: new Date()}});
+    Players.update(Session.get('player_id'), {$set: {room: room}});
   }
 
   var change_card = function(card) {
@@ -66,7 +66,7 @@ if (Meteor.is_client) {
   }
 
   Template.lobby.rooms = function() {
-    return Rooms.find({}, {$sort: {entered_at: 1}});
+    return Rooms.find({});
   }
 
   Template.lobby.room_name = function() {
