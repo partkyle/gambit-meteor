@@ -15,40 +15,40 @@ if (Meteor.is_client) {
     });
     Rooms.update(room._id, room);
   };
-  
+
   var currentCard = function() {
     var room = Rooms.findOne(Session.get('room'));
     var user = _(room.users).filter(function(user) {
       return user.userId == Meteor.user()._id;
     });
-    
+
     if (user.length) {
       return user[0].score;
     }
-  }
-  
+  };
+
   var joinRoom = function(roomId) {
     Session.set('room', roomId);
     var room = Rooms.findOne(roomId);
     room.users = _(room.users).filter(function(user) {
-      return user.userId != Meteor.user()._id
+      return user.userId != Meteor.user()._id;
     });
     room.users.push({userId: Meteor.user()._id, name: Meteor.user().name, score: null});
     Rooms.update(roomId, room);
   };
-  
+
   var verifyRoom = function() {
     var room = Rooms.findOne(Session.get('room'));
     var user = _(room.users).filter(function(user) {
       return user.userId == Meteor.user()._id;
     });
-    
+
     if (user.length) {
       return user[0];
     } else {
       Session.set('room', null);
     }
-  }
+  };
 
   /*
    * Template setup
