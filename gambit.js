@@ -7,7 +7,6 @@ if (Meteor.is_client) {
    */
 
   var changeCard = function(card) {
-    Session.set('card', card);
     var room = Rooms.findOne(Session.get('room'));
     _(room.users).each(function(user) {
       if (user.userId == Meteor.user()._id) {
@@ -15,10 +14,6 @@ if (Meteor.is_client) {
       }
     });
     Rooms.update(room._id, room);
-  };
-
-  var currentRoom = function() {
-    return Rooms.findOne({users: {userId: this.userId}});
   };
   
   var currentCard = function() {
@@ -41,6 +36,19 @@ if (Meteor.is_client) {
     room.users.push({userId: Meteor.user()._id, name: Meteor.user().name, score: null});
     Rooms.update(roomId, room);
   };
+  
+  var verifyRoom = function() {
+    var room = Rooms.findOne(Session.get('room'));
+    var user = _(room.users).filter(function(user) {
+      return user.userId == Meteor.user()._id;
+    });
+    
+    if (user.length) {
+      return user[0];
+    } else {
+      Session.set('room', null);
+    }
+  }
 
   /*
    * Template setup
@@ -53,10 +61,16 @@ if (Meteor.is_client) {
     }
   };
 
-  Template.app.lobby_mode = function() {
-    if (Meteor.user()) {
-      return !Meteor.user().room;
+  Template.app.lobbyMode = function() {
+    var room = Rooms.findOne(Session.get('room'));
+    var user = _(room.users).filter(function(user) {
+      return user.userId == Meteor.user()._id;
+    });
+    console.log(user);
+    if (user.length) {
+      return user[0];
     }
+    return false;
   };
 
   Template.app.room = function() {
@@ -150,33 +164,47 @@ if (Meteor.is_client) {
   Template.room.showScore = function() {
     var room = Rooms.findOne(Session.get('room'));
     return _(room.users).all(function(user) {
-      return user.score
+      return user.score;
     });
   };
 
   Template.room.events = {
     'click .card': function(e) {
-      if (currentCard() == this.value) {
-        changeCard(null);
-      } else {
-        changeCard(this.value);
+      if (verifyRoom()) {
+        if (currentCard() == this.value) {
+          changeCard(null);
+        } else {
+          changeCard(this.value);
+        }
       }
     },
     'click .reset': function(e) {
-      var room = Rooms.findOne(Session.get('room'));
-      _(room.users).each(function(user) {
-        user.score = null;
-      });
-      Rooms.update(room._id, room);
+      if (verifyRoom()) {
+        var room = Rooms.findOne(Session.get('room'));
+        _(room.users).each(function(user) {
+          user.score = null;
+        });
+        Rooms.update(room._id, room);
+      }
     },
     'change .room-name': function(e) {
-      var value = String(e.target.value || "");
-      if (value.length) {
-        Rooms.update(Session.get('room'), {$set: {name: value}});
+      if (verifyRoom()) {
+        var value = String(e.target.value || "");
+        if (value.length) {
+          Rooms.update(Session.get('room'), {$set: {name: value}});
+        }
       }
     },
     'click .shelf .icon-trash': function(e) {
-      alert('not implemented');
+      if (verifyRoom()) {
+        var room = Rooms.findOne(Session.get('room'));
+        var userId = this.userId;
+        room.users = _(room.users).filter(function(user) {
+          return user.userId != userId;
+        });
+        Rooms.update(room._id, room);
+        return false;
+      }
     }
   };
 }
