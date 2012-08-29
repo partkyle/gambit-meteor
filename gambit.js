@@ -5,118 +5,118 @@ if (Meteor.is_client) {
   /*
    * Helper Functions
    */
-  var findSelf = function() {
-    var player = Players.findOne(Session.get('player_id'));
-    if (!player) {
-      setPlayerId(null);
-      location.reload();
-    }
-    return player;
-  }
 
-  var setPlayerId = function(player_id) {
-    Session.set('player_id', player_id);
-    $.cookie('player_id', player_id);
-  }
-
-  var change_room = function(room) {
-    Session.set('room', room);
-    Players.update(Session.get('player_id'), {$set: {room: room}});
-  }
-
-  var change_card = function(card) {
+  var changeCard = function(card) {
     Session.set('card', card);
-    Players.update(Session.get('player_id'), {$set: {score: card}});
-  }
+    var room = Rooms.findOne(Session.get('room'));
+    _(room.users).each(function(user) {
+      if (user.userId == Meteor.user()._id) {
+        user.score = card;
+      }
+    });
+    Rooms.update(room._id, room);
+  };
 
-  /*
-   * Initialize session
-   */
-  var player_id = $.cookie('player_id');
-  if (!player_id) {
-    player_id = Players.insert({name: null});
+  var currentRoom = function() {
+    return Rooms.findOne({users: {userId: this.userId}});
+  };
+  
+  var currentCard = function() {
+    var room = Rooms.findOne(Session.get('room'));
+    var user = _(room.users).filter(function(user) {
+      return user.userId == Meteor.user()._id;
+    });
+    
+    if (user.length) {
+      return user[0].score;
+    }
   }
-  setPlayerId(player_id);
-
+  
+  var joinRoom = function(roomId) {
+    Session.set('room', roomId);
+    var room = Rooms.findOne(roomId);
+    room.users = _(room.users).filter(function(user) {
+      return user.userId != Meteor.user()._id
+    });
+    room.users.push({userId: Meteor.user()._id, name: Meteor.user().name, score: null});
+    Rooms.update(roomId, room);
+  };
 
   /*
    * Template setup
    */
-  Template.navbar.player_name = function() {
-    var player = findSelf();
-    if (player) {
-      return player.name;
-    }
-  }
 
   Template.navbar.events = {
     'click .brand': function(e) {
-      Players.update(Session.get('player_id'), {$set: {room: null}});
+      Session.set('room', null);
       return false;
-    },
-    'change .player-name': function(e) {
-      var value = String(e.target.value || "");
-      Players.update(Session.get('player_id'), {$set: {name: value}});
     }
-  }
+  };
 
   Template.app.lobby_mode = function() {
-    var player = findSelf();
-    return !player || !player.room;
-  }
+    if (Meteor.user()) {
+      return !Meteor.user().room;
+    }
+  };
+
+  Template.app.room = function() {
+    return Rooms.findOne(Session.get('room'));
+  };
 
   Template.lobby.rooms = function() {
     return Rooms.find({});
-  }
+  };
 
-  Template.lobby.room_name = function() {
+  Template.lobby.roomName = function() {
     if (!this.name.length) {
       return this._id;
     }
 
     return this.name;
-  }
+  };
 
   Template.lobby.events = {
     'click .new-room': function(e) {
-      var room_id = Rooms.insert({name: ''});
-      change_room(room_id);
+      var roomId = Rooms.insert({name: '', users: []});
+      joinRoom(roomId);
     },
     'click .shelf': function(e) {
-      change_room(this._id);
+      joinRoom(this._id);
     },
     'click .shelf .icon-trash': function(e) {
-      Players.update({room: this._id}, {$set: {room: null, score: null}});
       Rooms.remove(this._id);
-
       return false;
     }
   };
 
   Template.room.cards = function() {
     return [ {value: 1}, {value: 2}, {value: 3}, {value: 5}, {value: 8}, {value: 13} ];
-  }
+  };
 
   Template.room.selected = function() {
-    if (this.value == Session.get('card')) {
+    if (this.value == currentCard()) {
       return 'selected';
     }
-  }
+  };
 
-  Template.room.room_name = function() {
+  Template.room.roomName = function() {
     var current_room = Rooms.findOne({_id: Session.get('room')});
-    return Template.lobby.room_name.apply(current_room);
-  }
-
-  Template.room.player_display = function() {
-    return this.name ? this.name : this._id;
-  }
+    return Template.lobby.roomName.apply(current_room);
+  };
 
   Template.room.players = function() {
     return Players.find({room: Session.get('room')}, {sort: {name: 1}});
-  }
+  };
 
-  Template.room.badge_class = function() {
+  Template.room.users = function() {
+    return Rooms.findOne(Session.get('room')).users;
+  };
+
+  Template.room.userDisplay = function() {
+    return Meteor.users.findOne(this.userId).name || this.userId;
+  };
+
+  Template.room.badgeClass = function() {
     if (!this.score) {
       return '';
     }
@@ -141,27 +141,33 @@ if (Meteor.is_client) {
     }
 
     return badge;
-  }
+  };
 
-  Template.room.score_display = function() {
+  Template.room.scoreDisplay = function() {
     return this.score || '';
-  }
+  };
 
-  Template.room.end_round = function() {
-    return Players.find({room: Session.get('room')}).count() == Players.find({room: Session.get('room'), score: {$gt: 0}}).count();
-  }
+  Template.room.showScore = function() {
+    var room = Rooms.findOne(Session.get('room'));
+    return _(room.users).all(function(user) {
+      return user.score
+    });
+  };
 
   Template.room.events = {
     'click .card': function(e) {
-      if (Session.get('card') == this.value) {
-        change_card(null);
+      if (currentCard() == this.value) {
+        changeCard(null);
       } else {
-        change_card(this.value);
+        changeCard(this.value);
       }
     },
     'click .reset': function(e) {
-      Session.set('card', null);
-      Players.update({room: Session.get('room')}, {$set: {score: null}});
+      var room = Rooms.findOne(Session.get('room'));
+      _(room.users).each(function(user) {
+        user.score = null;
+      });
+      Rooms.update(room._id, room);
     },
     'change .room-name': function(e) {
       var value = String(e.target.value || "");
@@ -170,14 +176,9 @@ if (Meteor.is_client) {
       }
     },
     'click .shelf .icon-trash': function(e) {
-      if (this._id == Session.get('player_id')) {
-        alert('Y U NO NOT DELETE SELF!?');
-      } else {
-        Players.remove(this._id);
-      }
+      alert('not implemented');
     }
   };
-
 }
 
 if (Meteor.is_server) {

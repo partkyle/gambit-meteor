@@ -14,20 +14,25 @@
     <div class="navbar-inner">
       <div class="container">
         <a href="/" class="brand"> Gambit </a>
-        <form class="navbar-form pull-right" onsubmit="return false">
-          <input class="span4 player-name" type="text"
-                 value="{{player_name}}" placeholder="Player Name..."/>
-        </form>
+        <ul class="nav pull-right">
+          <li><a>{{> loginButtons}}</a></li>
+        </ul>
       </div>
     </div>
   </div>
 </template>
 
 <template name="app">
-  {{#if lobby_mode}}
-    {{> lobby}}
+  {{#if currentUser}}
+    {{#if room}}
+      {{> room}}
+    {{else}}
+      {{> lobby}}
+    {{/if}}
   {{else}}
-    {{> room}}
+    <div class="alert alert-info">
+      Please log in first.
+    </div>
   {{/if}}
 </template>
 
@@ -40,7 +45,7 @@
     {{#each rooms}}
       <li class="clearfix shelf">
         <span class="pull-left">
-          {{room_name}}
+          {{roomName}}
         </span>
         <span class="span2">
           <i class="icon-trash"></i>
@@ -53,11 +58,11 @@
 <template name="room">
   <div class="row header">
     <div class="span4">
-      <input class="span4 room-name" value="{{room_name}}" />
+      <input class="span4 room-name" value="{{roomName}}" />
     </div>
     <div class="span4 center">
       <a class="reset" href="#">
-        <i class="icon-refresh" />
+        <i class="icon-refresh"></i>
         Next Round
       </a>
     </div>
@@ -74,14 +79,14 @@
   </ul>
 
   <ul class="unstyled players">
-    {{#each players}}
+    {{#each users}}
       <li class="clearfix shelf">
-        <span class="pull-left">{{player_display}}</span>
+        <span class="pull-left">{{name}}</span>
         <span class="span2">
           <i class="icon-trash"></i>
         </span>
-        {{#if end_round}}
-          <span class="pull-right {{badge_class}}">{{score_display}}</span>
+        {{#if showScore}}
+          <span class="pull-right {{badgeClass}}">{{scoreDisplay}}</span>
         {{/if}}
       </li>
     {{/each}}

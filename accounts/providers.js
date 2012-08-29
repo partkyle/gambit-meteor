@@ -1,0 +1,1 @@
+Meteor.accounts.google.config('327446854825.apps.googleusercontent.com', 'http://localhost:3000');

@@ -15,7 +15,7 @@
 }
 
 .card {
-  box-shadow: 2px 4px 10px #444;
+  box-shadow: 2px 4px 10px #888;
   color: #222;
   display: inline-block;
   font-size: 2em;
@@ -34,6 +34,10 @@
   color: #222;
   cursor: pointer;
   text-decoration: none;
+}
+
+.selected {
+  box-shadow: 2px 4px 10px #444;
 }
 
 .shelf {
