@@ -8,5 +8,4 @@ bootstrap
 jquery
 accounts-ui
 accounts-google
-insecure
 underscore
