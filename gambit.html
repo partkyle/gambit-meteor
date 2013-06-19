@@ -84,7 +84,11 @@
   <ul class="unstyled players">
     {{#each users}}
       <li class="clearfix shelf">
-        <span class="pull-left">{{name}}</span>
+        <span class="pull-left"> {{name}}
+          {{#if email}}
+            ({{email}})
+          {{/if}}
+        </span>
         <span class="span2">
           <i class="icon-trash"></i>
         </span>

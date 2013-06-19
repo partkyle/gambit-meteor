@@ -33,7 +33,11 @@ if (Meteor.is_client) {
     room.users = _(room.users).filter(function(user) {
       return user.userId != Meteor.user()._id;
     });
-    room.users.push({userId: Meteor.user()._id, name: Meteor.user().name, score: null});
+    var roomUser = {userId: Meteor.user()._id,
+                    name: Meteor.user().profile.name || 'Who am I?',
+                    email: Meteor.user().services.google.email,
+                    score: null};
+    room.users.push(roomUser);
     Rooms.update(roomId, room);
   };
 
