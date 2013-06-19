@@ -93,6 +93,20 @@ if (Meteor.is_client) {
     return this.name;
   };
 
+  Template.lobby.roomCount = function() {
+    return this.users.length;
+  }
+
+  Template.lobby.roomHoverTitle = function() {
+    // TODO this should probably just be in the template
+    var usernames = _(this.users).map(function(u) { return u.name + ' (' + u.email + ')' });
+    var title = '';
+    _(usernames).each(function(u) {
+      title += u + '\n';
+    })
+    return title;
+  }
+
   Template.lobby.events = {
     'click .new-room': function(e) {
       var roomId = Rooms.insert({name: '', users: []});
