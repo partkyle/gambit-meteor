@@ -1,8 +1,5 @@
 <head>
   <title>Gambit</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="format-detection" content="telephone=no">
 </head>
 
 <body>
@@ -71,15 +68,17 @@
     </div>
   </div>
 
-  <ul class="thumbnails cards">
-    {{#each cards}}
-      <li class="span2">
-        <a class="card {{selected}}">
-          <span>{{value}}</span>
-        </a>
-      </li>
-    {{/each}}
-  </ul>
+  <div class="row cards">
+    <div class="span12">
+      {{#each cards}}
+        <div class="pull-left">
+          <a class="card {{selected}}">
+            <span>{{value}}</span>
+          </a>
+        </div>
+      {{/each}}
+    </div>
+  </div>
 
   <ul class="unstyled players">
     {{#each users}}
