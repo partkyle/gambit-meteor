@@ -94,6 +94,10 @@
         </span>
         {{#if showScore}}
           <span class="pull-right {{badgeClass}}">{{scoreDisplay}}</span>
+        {{else}}
+          {{#if score}}
+            <span class="pull-right"><i class="icon-lock"></i></span>
+          {{/if}}
         {{/if}}
       </li>
     {{/each}}
