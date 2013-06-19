@@ -47,10 +47,10 @@
         <span class="pull-left">
           {{roomName}}
         </span>
-        <span class="span2">
+        <span class="pull-left">
           <i class="icon-trash"></i>
         </span>
-        <span class="pull-right" title="{{roomHoverTitle}}">
+        <span class="pull-right badge badge-inverse" title="{{roomHoverTitle}}">
           {{roomCount}}
         </span>
       </li>
@@ -83,7 +83,7 @@
     </div>
   </div>
 
-  <ul class="unstyled players">
+  <ul class="unstyled">
     {{#each users}}
       <li class="clearfix shelf">
         <span class="pull-left"> {{name}}
@@ -91,7 +91,7 @@
             ({{email}})
           {{/if}}
         </span>
-        <span class="span2">
+        <span class="pull-left">
           <i class="icon-trash"></i>
         </span>
         {{#if showScore}}
